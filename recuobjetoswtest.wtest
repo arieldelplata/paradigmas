@@ -1,0 +1,45 @@
+import recuobjetos.*
+//tests unitarios y globales
+
+describe "test de monitoreo de servicios" {
+
+    // creo una instancia de la clase servicioWeb
+    const webGoogle = new ServicioWeb(url = "www.google.com")
+
+    // comprobar method caer
+    const webCaida = new ServicioWeb(url = "www.sitioroto.com")
+
+    // creo una instancia de la clase baseDeDatos
+    const bdProduccion = new BaseDeDatos()
+    const bdTest = new BaseDeDatos() //esta va a estar vacia y no disponible
+
+    method initialize() {
+        webCaida.caer()
+        bdProduccion.agregarDato("Cliente 1")
+        servicioDeUptime.registrarServicio(webGoogle)
+        servicioDeUptime.registrarServicio(webCaida)
+        servicioDeUptime.registrarServicio(bdProduccion)
+        servicioDeUptime.registrarServicio(bdTest)
+    }
+
+    test "Monitor detecta correctamente todos los servicios no disponibles" {
+        const caidos = servicioDeUptime.serviciosNoDisponibles()
+        assert.equals(2, caidos.size())
+        assert.that(caidos.contains(webCaida))
+        assert.that(caidos.contains(bdTest))
+    }
+
+    test "Un servicio de Office no esta disponible si su clave no es valida" {
+        const officeVilluca = new ServicioOffice(claveConfigurada = "CreesEnDios")
+        const officeLegal = new ServicioOffice(claveConfigurada = "FreeTrial")
+
+        servicioDeUptime.registrarServicio(officeLegal)
+        servicioDeUptime.registrarServicio(officeVilluca)
+        const caidos = servicioDeUptime.serviciosNoDisponibles()
+
+        assert.that(caidos.contains(officeVilluca))
+        assert.notThat(caidos.contains(officeLegal))
+    }
+}
+
+//Si el profesor te pregunta: "¿Tuviste que modificar el objeto servicioDeUptime para agregar Office?" Tu respuesta ganadora es: "No. Gracias al Polimorfismo, el monitor no necesita saber qué tipo de servicio está mirando. Solo le envía el mensaje estaDisponible() y confía en que el objeto sabrá cómo responder, ya sea chequeando una URL, una base de datos o una licencia.

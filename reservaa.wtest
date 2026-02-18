@@ -1,0 +1,47 @@
+import reserva.*
+
+describe "tests de la reserva de animales" {
+    const bosque = new Area(agua = 1000, refugios = 215, valorComun = 50)
+    const ciervo = new Ciervo()
+    const ciervoMontania = new CiervoMontania(nivelAlerta = 15)
+    const felino = new Felino(peso = 70, ferocidad = 50)
+    const felinoManchas = new FelinoMancha(peso = 80, ferocidad = 60, manchas = 29)
+    const aveRapaz = new AveRapaz(alturaVuelo = 30)
+    
+
+    method initialize() {
+        bosque.agregarAnimal(ciervo)
+        bosque.agregarAnimal(ciervoMontania)
+        bosque.agregarAnimal(felino)
+        bosque.agregarAnimal(felinoManchas)
+        bosque.agregarAnimal(aveRapaz)
+        bosque.valorComun(250)
+    }
+
+    test "Incendio" {
+        bosque.sufreIncendio()
+        assert.equals(900, bosque.obtenerAgua())
+        assert.that(ciervo.esDebil(bosque))
+        assert.that(felino.esDebil(bosque))
+        assert.that(aveRapaz.esDebil(bosque))
+        assert.that(felinoManchas.esDebil(bosque))
+        assert.notThat(ciervoMontania.esDebil(bosque))
+        
+        assert.that(bosque.elMasVigoroso(ciervoMontania))
+    }
+
+    test "Intervienen profesionales "{
+        bosque.intervieneProfesional()
+        assert.equals(992, bosque.obtenerAgua())
+        assert.equals(199, bosque.obtenerRefugios())
+        assert.notThat(bosque.esHabitable())
+
+    }
+
+    test "Ave rapaz" {
+        aveRapaz.recibirAmenaza()
+        aveRapaz.recibirAmenaza()
+        assert.that(bosque.esHabitable())
+        assert.notThat(bosque.estaEnEquilibrio())
+    }
+}
